@@ -22,6 +22,7 @@ type CustomerRepository interface {
 	GetCustomerByID(customerID uint) (*models.Customer, error)
 	StoreNewCustomer(payload resources.StoreNewCustomer) (uint, error)
 	UpdateCustomer(customerID uint, payload resources.StoreNewCustomer) error
+	DeleteCustomer(CustomerID uint) error
 }
 
 func NewCustomerRepository() CustomerRepository {
@@ -75,7 +76,7 @@ func (db *customerDbConnection) GetCustomerList(queryStringParam map[string]inte
 
 	if err := query.Find(&customer).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, errors.New("No records found")
+			return nil, nil, errors.New("no records found")
 		}
 		return nil, nil, err
 	}
@@ -172,6 +173,38 @@ func (db *customerDbConnection) UpdateCustomer(customerID uint, payload resource
 		if err := db.connection.Save(&existingAuth).Error; err != nil {
 			return fmt.Errorf("error updating authentication record: %v", err)
 		}
+	}
+
+	return nil
+}
+
+func (db *customerDbConnection) DeleteCustomer(CustomerID uint) error {
+	tx := db.connection.Begin()
+	if tx.Error != nil {
+		return fmt.Errorf("error starting transaction: %v", tx.Error)
+	}
+
+	var customer models.Customer
+	if err := tx.First(&customer, CustomerID).Error; err != nil {
+		tx.Rollback()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("order not found")
+		}
+		return fmt.Errorf("error finding customer: %v", err)
+	}
+
+	if err := tx.Where("customer_id = ?", CustomerID).Delete(&models.Authentication{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting customer auth: %v", err)
+	}
+
+	if err := tx.Delete(&customer).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error deleting customer: %v", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
 	}
 
 	return nil

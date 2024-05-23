@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Customer represents the customers entity
 type Customer struct {
 	ID        uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	FirstName string     `gorm:"type:varchar(255);not null" json:"first_name"`
@@ -17,7 +16,6 @@ type Customer struct {
 	DeletedAt *time.Time `gorm:"type:timestamptz" json:"deleted_at,omitempty"`
 }
 
-// Authentication represents the authentications entity
 type Authentication struct {
 	ID         uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	CustomerID uint       `json:"customer_id"`

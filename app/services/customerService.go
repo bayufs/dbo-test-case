@@ -73,3 +73,17 @@ func (h *CustomerService) UpdateCustomer(customerID uint, payload resources.Stor
 	return nil
 
 }
+
+func (h *CustomerService) DeleteCustomer(customerID uint) error {
+
+	errDeleteOrder := h.customerRepo.DeleteCustomer(customerID)
+
+	if errDeleteOrder != nil {
+		fmt.Println("Something went wrong while trying delete customer, see logs below.")
+		fmt.Println(errDeleteOrder.Error())
+		return errors.New(errDeleteOrder.Error())
+	}
+
+	return nil
+
+}

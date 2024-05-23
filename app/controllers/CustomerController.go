@@ -258,3 +258,33 @@ func (h *CustomerController) Update(c *gin.Context) {
 	)
 	return
 }
+
+func (h *CustomerController) Delete(c *gin.Context) {
+
+	orderID := c.Param("customerID")
+
+	orderID64, err := strconv.ParseUint(orderID, 10, 32)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	orderID64UINT := uint(orderID64)
+
+	errDelete := h.customerService.DeleteCustomer(orderID64UINT)
+
+	if errDelete != nil {
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity,
+			helpers.CreateResponse(http.StatusUnprocessableEntity, "Unprocessable Entity", err.Error()),
+		)
+		return
+
+	}
+
+	c.AbortWithStatusJSON(http.StatusOK,
+		helpers.CreateResponse(http.StatusOK, "success", "Success delete customer."),
+	)
+
+	return
+
+}

@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Order represents the orders entity
 type Order struct {
 	ID          uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	OrderDate   time.Time  `gorm:"type:timestamptz;not null" json:"order_date"`
@@ -14,9 +13,10 @@ type Order struct {
 	CreatedAt   time.Time  `gorm:"type:timestamptz;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time  `gorm:"type:timestamptz;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	DeletedAt   *time.Time `gorm:"type:timestamptz" json:"deleted_at,omitempty"`
+	OrderItem   OrderItem  `gorm:"foreignKey:OrderID" json:"order_item"`
+	Customer    Customer   `gorm:"foreignKey:CustomerID" json:"customer"`
 }
 
-// OrderItem represents the order_items entity
 type OrderItem struct {
 	ID        uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	OrderID   uint       `json:"order_id"`
@@ -26,9 +26,9 @@ type OrderItem struct {
 	CreatedAt time.Time  `gorm:"type:timestamptz;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time  `gorm:"type:timestamptz;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	DeletedAt *time.Time `gorm:"type:timestamptz" json:"deleted_at,omitempty"`
+	Product   Product    `json:"product"`
 }
 
-// Product represents the products entity
 type Product struct {
 	ID          uint       `gorm:"primaryKey;autoIncrement" json:"id"`
 	ProductName string     `gorm:"type:varchar(255);not null" json:"product_name"`
